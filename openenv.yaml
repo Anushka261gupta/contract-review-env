@@ -2,15 +2,23 @@ name: contract-review-env
 description: Contract analysis environment for AI agents
 version: "1.0"
 
-observations:
+observation_space:
   type: object
   properties:
     clause:
       type: string
 
-actions:
+action_space:
   type: string
-  enum: ["mark_safe", "mark_risky", "skip", "payment", "termination", "privacy", "legal", "suggest_edit"]
+  enum:
+    - mark_safe
+    - mark_risky
+    - skip
+    - payment
+    - termination
+    - privacy
+    - legal
+    - suggest_edit
 
 endpoints:
   reset: /reset
