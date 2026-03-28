@@ -1,6 +1,8 @@
 name: contract-review-env
+description: Contract analysis environment for AI agents
+version: 1.0
 
 endpoints:
-  tasks: /tasks
-  baseline: /baseline
-  grader: /grader
+  reset: /reset
+  step: /step
+  state: /state
