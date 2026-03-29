@@ -1,0 +1,16 @@
+[project]
+name = "contract-review-env"
+version = "0.1.0"
+description = "Contract Review AI Environment"
+authors = [
+    {name = "Anushka"}
+]
+dependencies = [
+    "fastapi",
+    "uvicorn",
+    "pydantic"
+]
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
