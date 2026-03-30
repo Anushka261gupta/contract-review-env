@@ -1,1 +1,6 @@
-# dummy lock file for validation
+# uv lock file
+[packages]
+fastapi
+uvicorn
+pydantic
+openenv-core
