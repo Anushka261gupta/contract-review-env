@@ -2,9 +2,7 @@
 name = "contract-review-env"
 version = "0.1.0"
 description = "Contract Review AI Environment"
-authors = [
-    {name = "Anushka"}
-]
+authors = [{ name = "Anushka" }]
 
 dependencies = [
     "fastapi",
@@ -14,8 +12,8 @@ dependencies = [
 ]
 
 [project.scripts]
-server = "app:app"
+start = "uvicorn app:app --host 0.0.0.0 --port 7860"
 
 [build-system]
-requires = ["setuptools"]
+requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
