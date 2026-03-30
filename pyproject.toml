@@ -5,11 +5,16 @@ description = "Contract Review AI Environment"
 authors = [
     {name = "Anushka"}
 ]
+
 dependencies = [
     "fastapi",
     "uvicorn",
-    "pydantic"
+    "pydantic",
+    "openenv>=0.2.0"
 ]
+
+[project.scripts]
+server = "app:app"
 
 [build-system]
 requires = ["setuptools"]
