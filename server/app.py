@@ -1,10 +1,10 @@
 from fastapi import FastAPI
-from env import ContractEnv
-from tasks import TASKS
-from grader import evaluate_episode
 import random
 from pydantic import BaseModel
 from typing import List
+from contract_review_env.env import ContractEnv
+from contract_review_env.tasks import TASKS
+from contract_review_env.grader import evaluate_episode
 
 app = FastAPI()
 
