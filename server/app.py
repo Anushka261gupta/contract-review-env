@@ -3,6 +3,7 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from typing import Optional, List, Dict, Any
 import random
+from fastapi import Body
 
 app = FastAPI(title="Contract Review Environment", version="1.0.0")
 
@@ -92,8 +93,10 @@ def grade_action(action: str, label: str) -> float:
 
 # ── Endpoints ─────────────────────────────────────────────────────────────────
 
+
+
 @app.post("/reset", response_model=Observation)
-def reset(req: ResetRequest):
+def reset(req: ResetRequest = Body(default=ResetRequest())):
     global _state
     task = req.task if req.task in CONTRACTS else "easy"
     if req.seed is not None:
