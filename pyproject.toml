@@ -1,19 +1,29 @@
+# pyproject.toml
 [project]
 name = "contract-review-env"
 version = "0.1.0"
 description = "Contract Review AI Environment"
 authors = [{ name = "Anushka" }]
-
+requires-python = ">=3.10"
 dependencies = [
-    "fastapi",
-    "uvicorn",
-    "pydantic",
-    "openenv-core>=0.2.0"
+    "fastapi>=0.110.0",
+    "uvicorn[standard]>=0.29.0",
+    "pydantic>=2.0.0",
+    "openenv-core>=0.2.0",
+    "openai>=1.0.0",
+    "python-dotenv>=1.0.0",
 ]
 
 [project.scripts]
-server = "uvicorn server.app:app --host 0.0.0.0 --port 7860"
+server = "server.main:serve"
 
 [build-system]
-requires = ["setuptools", "wheel"]
-build-backend = "setuptools.build_meta"
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.backends.legacy:build"
+
+[tool.uv]
+dev-dependencies = []
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["server*", "contract_review_env_pkg*"]
