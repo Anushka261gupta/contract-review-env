@@ -1,11 +1,18 @@
+# openenv.yaml
 name: contract-review-env
-description: Contract analysis environment for AI agents
+description: "Contract analysis environment for AI agents to identify risky clauses"
 version: "1.0"
 
 observation_space:
   type: object
   properties:
     clause:
+      type: string
+    clause_index:
+      type: integer
+    total_clauses:
+      type: integer
+    task:
       type: string
   required:
     - clause
@@ -16,13 +23,17 @@ action_space:
     - mark_safe
     - mark_risky
     - skip
-    - payment
-    - termination
-    - privacy
-    - legal
     - suggest_edit
 
-reward_range: [-1, 1]
+reward_range: [0.0, 1.0]
+
+tasks:
+  - id: easy
+    description: "3 clauses with clear safe/risky labels"
+  - id: medium
+    description: "4 clauses with moderate legal complexity"
+  - id: hard
+    description: "5 clauses with complex legal language"
 
 endpoints:
   reset: /reset
