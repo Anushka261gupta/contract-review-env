@@ -1,1 +1,2 @@
-touch server/__init__.py
+# server/__init__.py
+# OpenEnv server package
