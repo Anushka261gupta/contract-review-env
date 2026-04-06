@@ -1,26 +1,125 @@
-from env import ContractEnv
-from grader import evaluate_episode
-import random
+# inference.py
+"""
+Inference script: runs an AI agent against the contract review environment.
+Uses OpenAI API if OPENAI_API_KEY is set; falls back to rule-based agent.
+"""
 
-def run():
-    env = ContractEnv()
-    obs = env.reset()
+import os
+import json
+import requests
+from typing import Optional
+
+BASE_URL = os.getenv("ENV_BASE_URL", "http://localhost:7860")
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
+MODEL = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
+
+VALID_ACTIONS = ["mark_safe", "mark_risky", "skip", "suggest_edit"]
+
+
+def call_openai(clause: str) -> str:
+    """Use OpenAI to classify a contract clause."""
+    try:
+        from openai import OpenAI
+        client = OpenAI(api_key=OPENAI_API_KEY)
+        response = client.chat.completions.create(
+            model=MODEL,
+            temperature=0,  # deterministic
+            messages=[
+                {
+                    "role": "system",
+                    "content": (
+                        "You are a contract review expert. "
+                        "Given a contract clause, respond with exactly one of: "
+                        "mark_safe, mark_risky, skip, suggest_edit. "
+                        "Respond with the action only, no explanation."
+                    ),
+                },
+                {"role": "user", "content": f"Clause: {clause}"},
+            ],
+        )
+        action = response.choices[0].message.content.strip().lower()
+        return action if action in VALID_ACTIONS else "skip"
+    except Exception as e:
+        print(f"OpenAI error: {e}, falling back to rule-based agent.")
+        return rule_based_agent(clause)
+
+
+def rule_based_agent(clause: str) -> str:
+    """Deterministic fallback agent based on keyword matching."""
+    risky_keywords = [
+        "perpetuity", "irrevocable", "no appeals", "binding arbitration",
+        "third parties", "automatic renewal", "liquidated damages",
+        "200%", "indemnification", "without notice", "govern",
+    ]
+    clause_lower = clause.lower()
+    if any(kw in clause_lower for kw in risky_keywords):
+        return "mark_risky"
+    return "mark_safe"
+
+
+def choose_action(clause: str) -> str:
+    if OPENAI_API_KEY:
+        return call_openai(clause)
+    return rule_based_agent(clause)
+
+
+def run(task: str = "easy", seed: int = 42) -> dict:
+    """Run one full episode and return the final score."""
+    # Reset
+    reset_resp = requests.post(
+        f"{BASE_URL}/reset",
+        json={"task": task, "seed": seed},
+        timeout=10,
+    )
+    reset_resp.raise_for_status()
+    obs = reset_resp.json()
+
     done = False
-
-    actions = []
-    ground_truth = []
+    total_reward = 0.0
+    steps = 0
+    history = []
 
     while not done:
-        action = random.choice(env.actions)
-        clause = env.current_contract[env.current_index]
+        action = choose_action(obs["clause"])
+        step_resp = requests.post(
+            f"{BASE_URL}/step",
+            json={"action": action},
+            timeout=10,
+        )
+        step_resp.raise_for_status()
+        result = step_resp.json()
 
-        ground_truth.append(clause["label"])
-        actions.append(action)
+        total_reward += result["reward"]
+        steps += 1
+        history.append({
+            "clause": obs["clause"],
+            "action": action,
+            "reward": result["reward"],
+            "correct_label": result["info"].get("correct_label"),
+        })
 
-        obs, reward, done, _ = env.step(action)
+        done = result["done"]
+        if not done and result["observation"]:
+            obs = result["observation"]
 
-    score = evaluate_episode(actions, ground_truth)
-    print("Score:", score)
+    final_score = round(total_reward / steps, 4) if steps > 0 else 0.0
+
+    print(f"\n=== Episode Complete ===")
+    print(f"Task:        {task}")
+    print(f"Steps:       {steps}")
+    print(f"Total Reward:{total_reward:.4f}")
+    print(f"Final Score: {final_score:.4f}")
+    print(f"\nHistory:")
+    for h in history:
+        status = "✅" if h["action"] in (
+            f"mark_{h['correct_label']}" if h['correct_label'] else ""
+        ) else "❌"
+        print(f"  {status} [{h['correct_label']}] {h['action']} → reward={h['reward']}")
+
+    return {"task": task, "steps": steps, "final_score": final_score, "history": history}
+
 
 if __name__ == "__main__":
-    run()
+    import sys
+    task = sys.argv[1] if len(sys.argv) > 1 else "easy"
+    run(task=task)
