@@ -1,4 +1,11 @@
-fastapi
-uvicorn
-pydantic
-openenv-core
+# 1. Install uv if you don't have it
+pip install uv
+# or on mac: brew install uv
+
+# 2. From the root of your repo:
+uv lock
+
+# 3. Commit the generated uv.lock
+git add uv.lock
+git commit -m "fix: generate real uv.lock"
+git push
