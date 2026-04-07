@@ -18,7 +18,6 @@ VALID_ACTIONS = ["mark_safe", "mark_risky", "skip", "suggest_edit"]
 
 def call_openai(clause: str) -> str:
     try:
-
         client = OpenAI(
             api_key=os.getenv("API_KEY"),
             base_url=os.getenv("API_BASE_URL"),
@@ -32,15 +31,25 @@ def call_openai(clause: str) -> str:
                     "role": "system",
                     "content": (
                         "You are a contract review expert. "
-                        "Given a contract clause, respond with exactly one of: "
-                        "mark_safe, mark_risky, skip, suggest_edit."
+                        "Given a contract clause, return a JSON with fields: "
+                        "'action' and 'reason'. "
+                        "Action must be one of: mark_safe, mark_risky, skip, suggest_edit."
                     ),
                 },
                 {"role": "user", "content": clause},
             ],
         )
 
-        action = response.choices[0].message.content.strip().lower()
+        output = response.choices[0].message.content.strip()
+
+        # Try parsing JSON (new behavior)
+        try:
+            parsed = json.loads(output)
+            action = parsed.get("action", "skip")
+        except Exception:
+            # fallback: old plain text response
+            action = output.lower()
+
         return action if action in VALID_ACTIONS else "skip"
 
     except Exception as e:
