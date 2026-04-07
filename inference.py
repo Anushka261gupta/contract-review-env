@@ -11,8 +11,7 @@ from typing import Optional
 from openai import OpenAI
 
 BASE_URL = os.getenv("ENV_BASE_URL", "http://localhost:7860")
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
-MODEL = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
+
 
 VALID_ACTIONS = ["mark_safe", "mark_risky", "skip", "suggest_edit"]
 
@@ -63,9 +62,10 @@ def rule_based_agent(clause: str) -> str:
 
 
 def choose_action(clause: str) -> str:
-    if OPENAI_API_KEY:
-        return call_openai(clause)
-    return rule_based_agent(clause)
+    try:
+        return call_openai(clause)  # always try LLM
+    except Exception:
+        return rule_based_agent(clause)  # fallback
 
 
 def run(task: str = "easy", seed: int = 42) -> dict:
@@ -118,6 +118,10 @@ def run(task: str = "easy", seed: int = 42) -> dict:
 
 
 if __name__ == "__main__":
-    import sys
-    task = sys.argv[1] if len(sys.argv) > 1 else "easy"
-    run(task=task)
+    tasks = ["easy", "medium", "hard"]
+
+    for task in tasks:
+        try:
+            run(task=task)
+        except Exception as e:
+            print(f"[ERROR] task={task} error={e}", flush=True)
