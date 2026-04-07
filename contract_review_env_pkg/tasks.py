@@ -6,12 +6,12 @@ TASKS = [
     },
     {
         "name": "medium_clause_classification",
-        "description": "Classify clause into categories like payment, termination, privacy",
+        "description": "Classify clauses with moderate ambiguity into categories such as payment, termination, and privacy",
         "actions": ["payment", "termination", "privacy", "legal"]
     },
     {
         "name": "hard_contract_review",
-        "description": "Analyze clause, detect risk, and provide reasoning",
+        "description": "Analyze complex clauses with mixed legal signals, detect risk, and provide reasoning in realistic contract scenarios",
         "actions": ["mark_safe", "mark_risky", "suggest_edit"]
     }
 ]
