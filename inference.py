@@ -110,7 +110,11 @@ def run(task: str = "easy", seed: int = 42) -> dict:
         if not done and result["observation"]:
             obs = result["observation"]
 
-    final_score = round(total_reward / steps, 4) if steps > 0 else 0.0
+    raw_score = (total_reward / steps) if steps > 0 else 0.5
+
+    # clamp between (0,1)
+    final_score = min(max(raw_score, 0.01), 0.99)
+    final_score = round(final_score, 4)
 
     print(f"[END] task={task} score={final_score} steps={steps}", flush=True)
 
