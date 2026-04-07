@@ -8,6 +8,7 @@ import os
 import json
 import requests
 from typing import Optional
+from openai import OpenAI
 
 BASE_URL = os.getenv("ENV_BASE_URL", "http://localhost:7860")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
@@ -17,30 +18,34 @@ VALID_ACTIONS = ["mark_safe", "mark_risky", "skip", "suggest_edit"]
 
 
 def call_openai(clause: str) -> str:
-    """Use OpenAI to classify a contract clause."""
     try:
-        from openai import OpenAI
-        client = OpenAI(api_key=OPENAI_API_KEY)
+
+        client = OpenAI(
+            api_key=os.getenv("API_KEY"),
+            base_url=os.getenv("API_BASE_URL"),
+        )
+
         response = client.chat.completions.create(
-            model=MODEL,
-            temperature=0,  # deterministic
+            model=os.getenv("MODEL_NAME", "gpt-4o-mini"),
+            temperature=0,
             messages=[
                 {
                     "role": "system",
                     "content": (
                         "You are a contract review expert. "
                         "Given a contract clause, respond with exactly one of: "
-                        "mark_safe, mark_risky, skip, suggest_edit. "
-                        "Respond with the action only, no explanation."
+                        "mark_safe, mark_risky, skip, suggest_edit."
                     ),
                 },
-                {"role": "user", "content": f"Clause: {clause}"},
+                {"role": "user", "content": clause},
             ],
         )
+
         action = response.choices[0].message.content.strip().lower()
         return action if action in VALID_ACTIONS else "skip"
+
     except Exception as e:
-        print(f"OpenAI error: {e}, falling back to rule-based agent.")
+        print(f"LLM error: {e}", flush=True)
         return rule_based_agent(clause)
 
 
