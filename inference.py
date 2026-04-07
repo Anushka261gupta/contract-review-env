@@ -64,8 +64,8 @@ def choose_action(clause: str) -> str:
 
 
 def run(task: str = "easy", seed: int = 42) -> dict:
-    """Run one full episode and return the final score."""
-    # Reset
+    print(f"[START] task={task}", flush=True)
+
     reset_resp = requests.post(
         f"{BASE_URL}/reset",
         json={"task": task, "seed": seed},
@@ -91,6 +91,9 @@ def run(task: str = "easy", seed: int = 42) -> dict:
 
         total_reward += result["reward"]
         steps += 1
+
+        print(f"[STEP] step={steps} reward={result['reward']}", flush=True)
+
         history.append({
             "clause": obs["clause"],
             "action": action,
@@ -104,19 +107,9 @@ def run(task: str = "easy", seed: int = 42) -> dict:
 
     final_score = round(total_reward / steps, 4) if steps > 0 else 0.0
 
-    print(f"\n=== Episode Complete ===")
-    print(f"Task:        {task}")
-    print(f"Steps:       {steps}")
-    print(f"Total Reward:{total_reward:.4f}")
-    print(f"Final Score: {final_score:.4f}")
-    print(f"\nHistory:")
-    for h in history:
-        status = "✅" if h["action"] in (
-            f"mark_{h['correct_label']}" if h['correct_label'] else ""
-        ) else "❌"
-        print(f"  {status} [{h['correct_label']}] {h['action']} → reward={h['reward']}")
+    print(f"[END] task={task} score={final_score} steps={steps}", flush=True)
 
-    return {"task": task, "steps": steps, "final_score": final_score, "history": history}
+    return {"task": task, "steps": steps, "final_score": final_score}
 
 
 if __name__ == "__main__":
