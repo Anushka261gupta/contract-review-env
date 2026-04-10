@@ -29,11 +29,15 @@ class ContractEnv:
                 [
                     {"text": "The client grants the vendor a non-exclusive, perpetual license to use all submitted data for any purpose.", "label": "risky"},
                     {"text": "Liability is limited except in cases of gross negligence, fraud, or breach of confidentiality.", "label": "safe"}
+                ],
+                [
+                    {"text": "The vendor may use anonymized user data for internal improvements unless explicitly restricted by the client.", "label": "risky"},
+                    {"text": "Either party may terminate the agreement with mutual consent and prior written notice.", "label": "safe"}
                 ]
             ]
-}
+        }
 
-        self.actions = ["mark_safe", "mark_risky", "skip"]
+        self.actions = ["mark_safe", "mark_risky", "skip", "suggest_edit"]
 
         self.current_contract = None
         self.current_index = 0
@@ -54,9 +58,11 @@ class ContractEnv:
         correct = clause["label"]
 
         if action == "mark_risky" and correct == "risky":
-            reward = 0.9
+            reward = 1.0
         elif action == "mark_safe" and correct == "safe":
-            reward = 0.9
+            reward = 0.8
+        elif action == "suggest_edit" and correct == "risky":
+            reward = 0.75
         elif action == "skip":
             reward = 0.3
         else:
@@ -65,7 +71,6 @@ class ContractEnv:
         self.current_index += 1
         done = self.current_index >= len(self.current_contract)
 
-        # return next state or None if done
         next_obs = self._get_obs() if not done else None
 
         return next_obs, reward, done, {}
