@@ -10,113 +10,122 @@ pinned: false
 
 # 🤖 Contract Review AI Environment
 
-Reinforcement learning environment for training AI models to review contract terms in real-life scenarios.
+An OpenEnv-compatible reinforcement learning environment designed to train AI agents for **risk-aware contract clause analysis** in realistic legal scenarios.
 
 ---
 
-## 💡 Significance of the Environment
+## 💡 Why This Environment Matters
 
-Contract analysis is a vital technique used in:
+Contract analysis is a critical task in:
 
-- Legal tech tools
-- Business compliance software
-- SaaS contracts
+- LegalTech platforms  
+- Enterprise compliance systems  
+- SaaS agreements and vendor contracts  
 
-Incorrect evaluation of the contract terms may result in grave consequences.
+Incorrect interpretation of clauses can lead to **financial loss, legal disputes, and operational risks**.
 
-The environment provides a platform for making **risk-based decisions** by AI models.
+This environment simulates how AI agents make **risk-sensitive and context-aware decisions**, making it highly relevant for real-world applications.
 
 ---
 
-## 🧠 Unique Attributes
+## 🧠 Key Features
 
-- **Clause-Level Risk Classification**
-  Categorization of clauses as safe or unsafe through structured decision making.
+- **Clause-Level Risk Detection**  
+  Classifies clauses as `safe` or `risky` using structured decision-making.
 
-- **Explainable AI Decision**
-  Enhances agent output with explanations (LLM-based).
+- **Explainable AI Behavior**  
+  Agent decisions are enhanced with reasoning and optional edit suggestions.
 
-- **Variable Difficulty Tasks**
-  - Simple → clear indicators  
-  - Moderate → some ambiguity  
-  - Difficult → practical law complexities  
+- **Multi-Difficulty Tasks**
+  - Easy → clear signals  
+  - Medium → moderate ambiguity  
+  - Hard → complex, real-world legal language  
 
-- **Continuous Reward Training**
-  Reward feedback throughout (not just discrete outcomes).
+- **Reward Shaping Mechanism**  
+  Provides continuous feedback instead of binary scoring.
 
-- **Determinate Grading Scale**
-  Consistent grading from 0 to 1.
+- **Deterministic Evaluation**  
+  Ensures consistent and reproducible results.
 
-- **Deployable Environment**
-  - Docker containerization  
-  - Hugging Face space  
-  - OpenEnv compatible  
+- **Production-Ready Setup**
+  - Dockerized environment  
+  - Hugging Face Spaces deployment  
+  - Fully OpenEnv compliant  
 
 ---
 
 ## ⚙️ How It Works
 
-1. Agent is given a clause of the contract  
-2. Agent takes an action from the list below:
+1. The agent receives a contract clause  
+2. It selects an action:
    - `mark_safe`  
    - `mark_risky`  
    - `skip`  
    - `suggest_edit`  
-3. Environment: 
-   - checks if the action was correct
+3. The environment:
+   - evaluates correctness  
+   - assigns reward  
+   - returns the next clause  
 
 ---
 
-## 🎯 Task Summary
+## 🎯 Task Overview
 
-| Level    | Details          |
-|----------|------------------|
-| Easy     | Distinguish safe from risky clauses |
-| Medium   | Ambiguity and mixed signals |
-| Hard     | Complicated, practical contract law |
-
----
-
-## 🚀 Why This Is Special
-
-In contrast to traditional classification problems, this setting:
-
-- Employs **sequential decision-making** 
-- Incorporates **AI explainability**
-- Utilizes **reward shaping** rather than binary labeling
-- Embodies **practical contract risk assessment**
+| Difficulty | Description |
+|------------|------------|
+| Easy       | Clear distinction between safe and risky clauses |
+| Medium     | Mixed signals and moderate ambiguity |
+| Hard       | Complex clauses with real-world legal nuances |
 
 ---
 
-## 📊 Initial Performance Level
+## 🚀 What Makes This Unique
 
-| Task       | Expected score |
-|------------|----------------|
-| Easy       | ~0.8           |
-| Medium     | ~0.6           |
-| Difficult  | ~0.4           |
+Unlike traditional classification tasks, this environment:
 
-*(Score differs due to model and randomness)*
-
----
-
-## 🔌 Available API Endpoints
-
-- `/reset` -> initialize environment 
-- `/step` -> make a step in the environment  
-- `/state` -> environment state  
-- `/tasks` -> available tasks  
+- Simulates **sequential decision-making**
+- Incorporates **LLM-driven reasoning**
+- Supports **action-level intelligence (including edit suggestions)**
+- Uses **reward shaping instead of binary evaluation**
+- Reflects **real-world contract risk assessment workflows**
 
 ---
 
-## 🐳 Containerization & Deployment
+## 📊 Baseline Performance
 
-- Used Docker for containerization
-- Deployed in Hugging Face Spaces
-- Full compatibility with OpenEnv validator 
+| Task   | Expected Score |
+|--------|--------------|
+| Easy   | ~0.8         |
+| Medium | ~0.6         |
+| Hard   | ~0.4         |
+
+*(Scores may vary based on model behavior and randomness)*
 
 ---
 
-## 📌 Overview
+## 🔌 API Endpoints
 
-A project that enables realistic simulation of contract risk analysis through the use of an **AI agent with practical significance, clear rewards, and comprehensible reasoning**.
+- `/reset` → initialize environment  
+- `/step` → perform action  
+- `/state` → current state  
+- `/tasks` → available tasks  
+
+---
+
+## 🐳 Deployment
+
+- Containerized using Docker  
+- Hosted on Hugging Face Spaces  
+- Fully compatible with OpenEnv validator  
+
+---
+
+## 📌 Summary
+
+This project provides a realistic and extensible environment for training AI agents in contract risk analysis, combining:
+
+- **Practical relevance**  
+- **Explainable decision-making**  
+- **Structured reward feedback**  
+
+Making it suitable for next-generation intelligent systems in legal and compliance domains.
