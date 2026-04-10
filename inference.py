@@ -1,7 +1,7 @@
 # inference.py
 """
 Inference script: runs an AI agent against the contract review environment.
-Uses OpenAI proxy provided by hackathon.
+Fully compliant with OpenEnv Hackathon requirements.
 """
 
 import os
@@ -9,20 +9,30 @@ import json
 import requests
 from openai import OpenAI
 
+# Required environment variables
+API_BASE_URL = os.getenv("API_BASE_URL", "https://api.openai.com/v1")
+MODEL_NAME = os.getenv("MODEL_NAME", "gpt-4o-mini")
+HF_TOKEN = os.getenv("HF_TOKEN")
+
+if HF_TOKEN is None:
+    raise ValueError("HF_TOKEN environment variable is required")
+
+# Environment endpoint
 BASE_URL = os.getenv("ENV_BASE_URL", "http://localhost:7860")
+
+# OpenAI client (proxy)
+client = OpenAI(
+    base_url=API_BASE_URL,
+    api_key=HF_TOKEN
+)
 
 VALID_ACTIONS = ["mark_safe", "mark_risky", "skip", "suggest_edit"]
 
 
 def call_openai(clause: str) -> str:
     try:
-        client = OpenAI(
-            api_key=os.getenv("API_KEY"),
-            base_url=os.getenv("API_BASE_URL"),
-        )
-
         response = client.chat.completions.create(
-            model=os.getenv("MODEL_NAME", "gpt-4o-mini"),
+            model=MODEL_NAME,
             temperature=0,
             messages=[
                 {
@@ -49,6 +59,7 @@ def call_openai(clause: str) -> str:
             action = output.lower()
             suggestion = ""
 
+        # Smart behavior
         if action == "mark_risky" and suggestion:
             action = "suggest_edit"
 
@@ -56,30 +67,11 @@ def call_openai(clause: str) -> str:
 
     except Exception as e:
         print(f"LLM error: {e}", flush=True)
-        return rule_based_agent(clause)
+        return "skip"
 
 
-def rule_based_agent(clause: str) -> str:
-    risky_keywords = [
-        "perpetuity", "irrevocable", "no appeals", "binding arbitration",
-        "third parties", "automatic renewal", "liquidated damages",
-        "200%", "indemnification", "without notice", "govern",
-    ]
-    clause_lower = clause.lower()
-    if any(kw in clause_lower for kw in risky_keywords):
-        return "mark_risky"
-    return "mark_safe"
-
-
-def choose_action(clause: str) -> str:
-    try:
-        return call_openai(clause)
-    except Exception:
-        return rule_based_agent(clause)
-
-
-def run(task: str = "easy", seed: int = 42) -> dict:
-    print(f"[START] task={task}", flush=True)
+def run(task: str = "easy", seed: int = 42):
+    print(f"[START] task={task} env=contract-review model={MODEL_NAME}", flush=True)
 
     reset_resp = requests.post(
         f"{BASE_URL}/reset",
@@ -92,9 +84,10 @@ def run(task: str = "easy", seed: int = 42) -> dict:
     done = False
     total_reward = 0.0
     steps = 0
+    rewards_list = []  # ✅ REQUIRED
 
     while not done:
-        action = choose_action(obs["clause"])
+        action = call_openai(obs["clause"])
 
         step_resp = requests.post(
             f"{BASE_URL}/step",
@@ -104,24 +97,28 @@ def run(task: str = "easy", seed: int = 42) -> dict:
         step_resp.raise_for_status()
         result = step_resp.json()
 
-        total_reward += result["reward"]
+        reward = result["reward"]
+        total_reward += reward
+        rewards_list.append(reward)
         steps += 1
 
-        print(f"[STEP] step={steps} reward={result['reward']}", flush=True)
-
         done = result["done"]
+
+        print(
+            f"[STEP] step={steps} action={action} reward={reward:.2f} done={str(done).lower()} error=null",
+            flush=True
+        )
+
         if not done and result["observation"]:
             obs = result["observation"]
 
     raw_score = (total_reward / steps) if steps > 0 else 0.5
-
-    # clamp strictly between (0,1)
     final_score = min(max(raw_score, 0.01), 0.99)
-    final_score = round(final_score, 4)
 
-    print(f"[END] task={task} score={final_score} steps={steps}", flush=True)
+    success = "true" if final_score > 0.5 else "false"
+    rewards_str = ",".join([f"{r:.2f}" for r in rewards_list])
 
-    return {"task": task, "steps": steps, "final_score": final_score}
+    print(f"[END] success={success} steps={steps} rewards={rewards_str}", flush=True)
 
 
 if __name__ == "__main__":
@@ -131,4 +128,4 @@ if __name__ == "__main__":
         try:
             run(task=task)
         except Exception as e:
-            print(f"[ERROR] task={task} error={e}", flush=True)
+            print(f"[END] success=false steps=0 rewards= error={e}", flush=True)
