@@ -84,7 +84,7 @@ def run(task: str = "easy", seed: int = 42):
     done = False
     total_reward = 0.0
     steps = 0
-    rewards_list = []  # ✅ REQUIRED
+    rewards_list = []  
 
     while not done:
         action = call_openai(obs["clause"])
