@@ -1,17 +1,15 @@
 # inference.py
 """
 Inference script: runs an AI agent against the contract review environment.
-Uses OpenAI API if OPENAI_API_KEY is set; falls back to rule-based agent.
+Uses OpenAI proxy provided by hackathon.
 """
 
 import os
 import json
 import requests
-from typing import Optional
 from openai import OpenAI
 
 BASE_URL = os.getenv("ENV_BASE_URL", "http://localhost:7860")
-
 
 VALID_ACTIONS = ["mark_safe", "mark_risky", "skip", "suggest_edit"]
 
@@ -32,8 +30,9 @@ def call_openai(clause: str) -> str:
                     "content": (
                         "You are a contract review expert. "
                         "Given a contract clause, return a JSON with fields: "
-                        "'action' and 'reason'. "
-                        "Action must be one of: mark_safe, mark_risky, skip, suggest_edit."
+                        "'action' and 'suggestion'. "
+                        "Action must be one of: mark_safe, mark_risky, skip, suggest_edit. "
+                        "If the clause is risky, provide a short suggestion to improve it."
                     ),
                 },
                 {"role": "user", "content": clause},
@@ -42,13 +41,16 @@ def call_openai(clause: str) -> str:
 
         output = response.choices[0].message.content.strip()
 
-        # Try parsing JSON (new behavior)
         try:
             parsed = json.loads(output)
             action = parsed.get("action", "skip")
+            suggestion = parsed.get("suggestion", "")
         except Exception:
-            # fallback: old plain text response
             action = output.lower()
+            suggestion = ""
+
+        if action == "mark_risky" and suggestion:
+            action = "suggest_edit"
 
         return action if action in VALID_ACTIONS else "skip"
 
@@ -58,7 +60,6 @@ def call_openai(clause: str) -> str:
 
 
 def rule_based_agent(clause: str) -> str:
-    """Deterministic fallback agent based on keyword matching."""
     risky_keywords = [
         "perpetuity", "irrevocable", "no appeals", "binding arbitration",
         "third parties", "automatic renewal", "liquidated damages",
@@ -72,9 +73,9 @@ def rule_based_agent(clause: str) -> str:
 
 def choose_action(clause: str) -> str:
     try:
-        return call_openai(clause)  # always try LLM
+        return call_openai(clause)
     except Exception:
-        return rule_based_agent(clause)  # fallback
+        return rule_based_agent(clause)
 
 
 def run(task: str = "easy", seed: int = 42) -> dict:
@@ -91,10 +92,10 @@ def run(task: str = "easy", seed: int = 42) -> dict:
     done = False
     total_reward = 0.0
     steps = 0
-    history = []
 
     while not done:
         action = choose_action(obs["clause"])
+
         step_resp = requests.post(
             f"{BASE_URL}/step",
             json={"action": action},
@@ -108,20 +109,13 @@ def run(task: str = "easy", seed: int = 42) -> dict:
 
         print(f"[STEP] step={steps} reward={result['reward']}", flush=True)
 
-        history.append({
-            "clause": obs["clause"],
-            "action": action,
-            "reward": result["reward"],
-            "correct_label": result["info"].get("correct_label"),
-        })
-
         done = result["done"]
         if not done and result["observation"]:
             obs = result["observation"]
 
     raw_score = (total_reward / steps) if steps > 0 else 0.5
 
-    # clamp between (0,1)
+    # clamp strictly between (0,1)
     final_score = min(max(raw_score, 0.01), 0.99)
     final_score = round(final_score, 4)
 
