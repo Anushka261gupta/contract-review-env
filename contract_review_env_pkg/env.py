@@ -58,7 +58,7 @@ class ContractEnv:
         correct = clause["label"]
 
         if action == "mark_risky" and correct == "risky":
-            reward = 1.0
+            reward = 0.9
         elif action == "mark_safe" and correct == "safe":
             reward = 0.8
         elif action == "suggest_edit" and correct == "risky":
