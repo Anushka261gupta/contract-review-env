@@ -59,7 +59,6 @@ def call_openai(clause: str) -> str:
             action = output.lower()
             suggestion = ""
 
-        # Smart behavior
         if action == "mark_risky" and suggestion:
             action = "suggest_edit"
 
@@ -84,7 +83,7 @@ def run(task: str = "easy", seed: int = 42):
     done = False
     total_reward = 0.0
     steps = 0
-    rewards_list = []  
+    rewards_list = []
 
     while not done:
         action = call_openai(obs["clause"])
@@ -113,7 +112,15 @@ def run(task: str = "easy", seed: int = 42):
             obs = result["observation"]
 
     raw_score = (total_reward / steps) if steps > 0 else 0.5
-    final_score = min(max(raw_score, 0.01), 0.99)
+
+    if raw_score <= 0:
+        final_score = 0.01
+    elif raw_score >= 1:
+        final_score = 0.99
+    else:
+        final_score = raw_score
+
+    final_score = round(final_score, 4)
 
     success = "true" if final_score > 0.5 else "false"
     rewards_str = ",".join([f"{r:.2f}" for r in rewards_list])
