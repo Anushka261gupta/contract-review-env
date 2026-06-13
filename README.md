@@ -1,7 +1,7 @@
 ---
 
 title: Contract Review Env
-emoji: 🤖
+emoji: "🤖"
 colorFrom: blue
 colorTo: green
 sdk: docker
