@@ -1,4 +1,5 @@
 ---
+
 title: Contract Review Env
 emoji: 🤖
 colorFrom: blue
@@ -6,9 +7,11 @@ colorTo: green
 sdk: docker
 app_file: app.py
 pinned: false
----
+-------------
 
 # 🤖 Contract Review AI Environment
+
+### Risk-Aware Legal Clause Analysis using Reinforcement Learning
 
 An OpenEnv-compatible reinforcement learning environment designed to train AI agents for **risk-aware contract clause analysis** in realistic legal scenarios.
 
@@ -18,9 +21,9 @@ An OpenEnv-compatible reinforcement learning environment designed to train AI ag
 
 Contract analysis is a critical task in:
 
-- LegalTech platforms  
-- Enterprise compliance systems  
-- SaaS agreements and vendor contracts  
+* LegalTech platforms
+* Enterprise compliance systems
+* SaaS agreements and vendor contracts
 
 Incorrect interpretation of clauses can lead to **financial loss, legal disputes, and operational risks**.
 
@@ -30,52 +33,124 @@ This environment simulates how AI agents make **risk-sensitive and context-aware
 
 ## 🧠 Key Features
 
-- **Clause-Level Risk Detection**  
+* **Clause-Level Risk Detection**
   Classifies clauses as `safe` or `risky` using structured decision-making.
 
-- **Explainable AI Behavior**  
-  Agent decisions are enhanced with reasoning and optional edit suggestions.
+* **Explainable AI Behavior**
+  Supports interpretable agent decisions with reasoning and optional edit suggestions.
 
-- **Multi-Difficulty Tasks**
-  - Easy → clear signals  
-  - Medium → moderate ambiguity  
-  - Hard → complex, real-world legal language  
+* **Multi-Difficulty Tasks**
 
-- **Reward Shaping Mechanism**  
+  * Easy → clear signals
+  * Medium → moderate ambiguity
+  * Hard → complex, real-world legal language
+
+* **Reward Shaping Mechanism**
   Provides continuous feedback instead of binary scoring.
 
-- **Deterministic Evaluation**  
+* **Deterministic Evaluation**
   Ensures consistent and reproducible results.
 
-- **Production-Ready Setup**
-  - Dockerized environment  
-  - Hugging Face Spaces deployment  
-  - Fully OpenEnv compliant  
+* **Production-Ready Setup**
+
+  * Dockerized environment
+  * Hugging Face Spaces deployment
+  * Fully OpenEnv compliant
+
+---
+
+## 🏗️ System Architecture
+
+```text
+                  ┌──────────────────┐
+                  │ Contract Clause  │
+                  └────────┬─────────┘
+                           │
+                           ▼
+               ┌────────────────────┐
+               │      AI Agent       │
+               └────────┬───────────┘
+                        │
+                        ▼
+            ┌───────────────────────┐
+            │ Action Selection      │
+            │-----------------------│
+            │ mark_safe             │
+            │ mark_risky            │
+            │ suggest_edit          │
+            │ skip                  │
+            └────────┬──────────────┘
+                     │
+                     ▼
+         ┌─────────────────────────┐
+         │ Contract Review Env     │
+         │-------------------------│
+         │ Reward Calculation      │
+         │ Risk Evaluation         │
+         │ Next State Generation   │
+         └────────┬────────────────┘
+                  │
+                  ▼
+         Reward + Next Clause
+```
 
 ---
 
 ## ⚙️ How It Works
 
-1. The agent receives a contract clause  
-2. It selects an action:
-   - `mark_safe`  
-   - `mark_risky`  
-   - `skip`  
-   - `suggest_edit`  
+1. The agent receives a contract clause.
+
+2. The agent selects an action:
+
+   * `mark_safe`
+   * `mark_risky`
+   * `skip`
+   * `suggest_edit`
+
 3. The environment:
-   - evaluates correctness  
-   - assigns reward  
-   - returns the next clause  
+
+   * evaluates correctness
+   * assigns reward
+   * returns the next clause
+
+---
+
+## 📝 Example Interaction
+
+### Input Clause
+
+> "The vendor may terminate this agreement without prior notice."
+
+### Agent Action
+
+```python
+mark_risky
+```
+
+### Reason
+
+The clause allows unilateral termination without notice,
+which may create legal and operational risks.
+
+### Reward
+
+```python
++1
+```
+
+### Next State
+
+The environment returns the next clause for evaluation.
 
 ---
 
 ## 🎯 Task Overview
 
-| Difficulty | Description |
-|------------|------------|
+| Difficulty | Description                                      |
+| ---------- | ------------------------------------------------ |
 | Easy       | Clear distinction between safe and risky clauses |
-| Medium     | Mixed signals and moderate ambiguity |
-| Hard       | Complex clauses with real-world legal nuances |
+| Medium     | Mixed signals and moderate ambiguity             |
+| Hard       | Complex clauses with real-world legal nuances    |
 
 ---
 
@@ -83,40 +158,28 @@ This environment simulates how AI agents make **risk-sensitive and context-aware
 
 Unlike traditional classification tasks, this environment:
 
-- Simulates **sequential decision-making**
-- Incorporates **LLM-driven reasoning**
-- Supports **action-level intelligence (including edit suggestions)**
-- Uses **reward shaping instead of binary evaluation**
-- Reflects **real-world contract risk assessment workflows**
-
----
-
-## 📊 Baseline Performance
-
-| Task   | Expected Score |
-|--------|--------------|
-| Easy   | ~0.8         |
-| Medium | ~0.6         |
-| Hard   | ~0.4         |
-
-*(Scores may vary based on model behavior and randomness)*
+* Simulates **sequential decision-making**
+* Supports **action-level intelligence**
+* Incorporates **explainable decision-making**
+* Uses **reward shaping instead of binary evaluation**
+* Reflects **real-world contract risk assessment workflows**
 
 ---
 
 ## 🔌 API Endpoints
 
-- `/reset` → initialize environment  
-- `/step` → perform action  
-- `/state` → current state  
-- `/tasks` → available tasks  
+* `/reset` → initialize environment
+* `/step` → perform action
+* `/state` → current state
+* `/tasks` → available tasks
 
 ---
 
 ## 🐳 Deployment
 
-- Containerized using Docker  
-- Hosted on Hugging Face Spaces  
-- Fully compatible with OpenEnv validator  
+* Containerized using Docker
+* Hosted on Hugging Face Spaces
+* Fully compatible with OpenEnv validator
 
 ---
 
@@ -124,8 +187,8 @@ Unlike traditional classification tasks, this environment:
 
 This project provides a realistic and extensible environment for training AI agents in contract risk analysis, combining:
 
-- **Practical relevance**  
-- **Explainable decision-making**  
-- **Structured reward feedback**  
+* **Practical relevance**
+* **Explainable decision-making**
+* **Structured reward feedback**
 
 Making it suitable for next-generation intelligent systems in legal and compliance domains.
