@@ -11,7 +11,7 @@ pinned: false
 
 # 🤖 Contract Review AI Environment
 
-### Risk-Aware Legal Clause Analysis using Reinforcement Learning
+### Reinforcement Learning Environment for Risk-Aware Legal Clause Analysis
 
 An OpenEnv-compatible reinforcement learning environment designed to train AI agents for **risk-aware contract clause analysis** in realistic legal scenarios.
 
@@ -61,38 +61,7 @@ This environment simulates how AI agents make **risk-sensitive and context-aware
 
 ## 🏗️ System Architecture
 
-```text
-                  ┌──────────────────┐
-                  │ Contract Clause  │
-                  └────────┬─────────┘
-                           │
-                           ▼
-               ┌────────────────────┐
-               │      AI Agent       │
-               └────────┬───────────┘
-                        │
-                        ▼
-            ┌───────────────────────┐
-            │ Action Selection      │
-            │-----------------------│
-            │ mark_safe             │
-            │ mark_risky            │
-            │ suggest_edit          │
-            │ skip                  │
-            └────────┬──────────────┘
-                     │
-                     ▼
-         ┌─────────────────────────┐
-         │ Contract Review Env     │
-         │-------------------------│
-         │ Reward Calculation      │
-         │ Risk Evaluation         │
-         │ Next State Generation   │
-         └────────┬────────────────┘
-                  │
-                  ▼
-         Reward + Next Clause
-```
+![Contract Review Architecture](architecture.png)
 
 ---
 
@@ -100,7 +69,7 @@ This environment simulates how AI agents make **risk-sensitive and context-aware
 
 1. The agent receives a contract clause.
 
-2. The agent selects an action:
+2. The agent selects one of the following actions:
 
    * `mark_safe`
    * `mark_risky`
@@ -129,8 +98,7 @@ mark_risky
 
 ### Reason
 
-The clause allows unilateral termination without notice,
-which may create legal and operational risks.
+The clause allows unilateral termination without notice, which may create legal and operational risks.
 
 ### Reward
 
